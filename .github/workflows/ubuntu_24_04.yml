@@ -23,4 +23,4 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --parallel $(nproc) --target spiderrock_broker
+        cmake --build . --parallel $(nproc) --target subscribe_test
