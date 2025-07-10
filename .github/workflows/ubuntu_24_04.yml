@@ -1,0 +1,26 @@
+name: ubuntu-22.04
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: install deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev libssl-dev build-essential
+    - name: build subscribe_test
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --parallel $(nproc) --target spiderrock_broker
