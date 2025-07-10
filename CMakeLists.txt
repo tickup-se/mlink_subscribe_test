@@ -9,6 +9,7 @@ endif()
 
 find_package (OpenSSL REQUIRED)
 find_package(Boost 1.81.0 COMPONENTS url REQUIRED)
+find_package (protobuf CONFIG REQUIRED)
 find_package (Threads REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spiderrock_client/Codec)
@@ -20,5 +21,6 @@ add_executable(subscribe_test main.cpp)
 target_link_libraries(subscribe_test PUBLIC
         ${Boost_LIBRARIES}
         ${OPENSSL_LIBRARIES}
+        ${PROTO_BASE}
         Threads::Threads
 )

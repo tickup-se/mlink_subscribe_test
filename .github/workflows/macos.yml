@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: install deps
       run: |
-        brew install boost openssl
+        brew install boost openssl protobuf
     - name: build subscribe_test
       run: |
         mkdir build
