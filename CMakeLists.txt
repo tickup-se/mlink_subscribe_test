@@ -8,9 +8,8 @@ if(POLICY CMP0167)
 endif()
 
 find_package (OpenSSL REQUIRED)
-find_package(Boost 1.81.0 COMPONENTS url REQUIRED)
-#find_package (protobuf CONFIG REQUIRED)
-find_package(Protobuf REQUIRED)
+find_package (Boost 1.81.0 COMPONENTS url REQUIRED)
+find_package (Protobuf REQUIRED)
 find_package (Threads REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spiderrock_client/Codec)
