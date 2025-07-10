@@ -12,9 +12,8 @@ find_package (Boost 1.81.0 COMPONENTS url REQUIRED)
 find_package (Protobuf REQUIRED)
 find_package (Threads REQUIRED)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spiderrock_client/Codec)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spiderrock_client/Messages)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spiderrock_client/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Codec)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Messages)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 add_executable(subscribe_test main.cpp)
