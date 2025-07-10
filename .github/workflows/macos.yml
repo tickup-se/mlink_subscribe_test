@@ -1,0 +1,25 @@
+name: ubuntu-22.04
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: install deps
+      run: |
+        brew install boost openssl
+    - name: build subscribe_test
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --parallel $(nproc) --target spiderrock_broker
