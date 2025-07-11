@@ -52,7 +52,7 @@ Will every 10 seconds output debug information formated like this:
 
 **Historic data**
 
-./historic_prints <file> 
+./historic_prints <FILE_NAME> 
 
 First outputs the column names and their respective column number.
 Outputs heart beat every 100.000 rows

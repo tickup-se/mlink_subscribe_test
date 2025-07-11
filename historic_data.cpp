@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
     //Get the program arguments
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <SpiderRock key>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <FILE_NAME>" << std::endl;
         return EXIT_FAILURE;
     }
 
