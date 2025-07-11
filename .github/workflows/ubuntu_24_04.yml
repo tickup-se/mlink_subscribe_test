@@ -18,9 +18,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libboost-all-dev libssl-dev build-essential protobuf-compiler libprotobuf-dev libprotoc-dev
-    - name: build subscribe_test
+    - name: build all
       run: |
         mkdir build
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --parallel $(nproc) --target subscribe_test
+        cmake --build . --parallel $(nproc)

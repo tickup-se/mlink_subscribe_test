@@ -1,8 +1,10 @@
 # MLink stream test
 
-Based on SpiderRocks example code this program streams a set of tickers and counts the number of open and close cross trades.
+Based on SpiderRocks example code the live_prints program streams a set of tickers and counts the number of open and close cross trades.
 
-## build
+The program historic_prints is reading trough a historic file and outputs the number of open prints.
+
+## build all
 
 ### MacOS:
 
@@ -13,7 +15,7 @@ brew install boost openssl protobuf
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --target subscribe_test
+cmake --build .
 ```
 
 ### Ubuntu 24.04:
@@ -25,12 +27,14 @@ sudo apt-get install -y libboost-all-dev libssl-dev build-essential protobuf-com
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --parallel $(nproc) --target subscribe_test
+cmake --build . --parallel $(nproc)
 ```
 
 ### usage:
 
-./subscribe_test <API_KEY> 
+**Live data**
+
+./live_prints <API_KEY> 
 
 Will every 10 seconds output debug information formated like this:
 
@@ -45,3 +49,14 @@ Will every 10 seconds output debug information formated like this:
 4. unique open is the number of unique open cross trades mening if AAPL would receive two open cross unique open would count that as one (open cross trades should be the same as this parameter)
 5. unique close is the number of unique close cross trades mening if AAPL would receive two close cross unique close would count that as one (close cross trades should be the same as this parameter)
 6. no. print messages the number of all StockPrint messages without any filter decoded
+
+**Historic data**
+
+./historic_prints <file> 
+
+First outputs the column names and their respective column number.
+Outputs heart beat every 100.000 rows
+When a open print is found the name of the ticker is detailed.
+At the end the number of open prints are displayed.
+
+

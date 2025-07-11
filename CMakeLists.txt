@@ -16,10 +16,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Codec)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Messages)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
-add_executable(subscribe_test main.cpp)
-target_link_libraries(subscribe_test PUBLIC
+add_executable(live_prints MLinkStreamHandler.cpp live_data.cpp)
+target_link_libraries(live_prints PUBLIC
         ${Boost_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${PROTO_BASE}
         Threads::Threads
 )
+
+add_executable(historic_prints historic_data.cpp)
