@@ -45,7 +45,7 @@ Will every 10 seconds output debug information formated like this:
 
 1. The local time and the local timezone where the code runs
 2. number of open cross trades seen from the subscribed universe
-3.  number of close cross trades seen from the subscribed universe
+3. number of close cross trades seen from the subscribed universe
 4. unique open is the number of unique open cross trades mening if AAPL would receive two open cross unique open would count that as one (open cross trades should be the same as this parameter)
 5. unique close is the number of unique close cross trades mening if AAPL would receive two close cross unique close would count that as one (close cross trades should be the same as this parameter)
 6. no. print messages the number of all StockPrint messages without any filter decoded
@@ -58,5 +58,17 @@ First outputs the column names and their respective column number.
 Outputs heart beat every 100.000 rows
 When a open print is found the name of the ticker is detailed.
 At the end the number of open prints are displayed.
+
+*Filtered section, prefix (filtered)*
+
+Number is the number of occasions open/close crosses within the ticker universe filter.
+
+Unique per ticker name, should be the same as the above counters. If for example AAPL occurs twice or more, then the counter count one.
+
+*Non filtered section, prefix (no filtered)*
+
+Number is the number of occasions open/close crosses messages.
+
+Unique per ticker name, should be the same as the above counters. If for example AAPL occurs twice or more, then the counter count one.
 
 
