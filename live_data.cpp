@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
             lMLinkStreams.push_back(std::move(lMLinkStream));
 
             lSubscriptionCounter++;
-            lCurrentSubscriptionString = lSubscriptionCandidate;
+            lCurrentSubscriptionString = lSubscriptionCandidate + " | ";
         }
     }
 
