@@ -2,7 +2,7 @@
 
 Based on SpiderRocks example code the live_prints program streams a set of tickers and counts the number of open and close cross trades.
 
-The program historic_prints is reading trough a historic file and outputs the number of open prints.
+The program historic_prints is reading trough a historic file and outputs the number of open and close trades.
 
 ## build all
 
