@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    //Extract the API Key
+    //Get the filename of SpiderRocks historic prints file
     std::string lFileName = argv[1];
 
     //print the column index number for each column name.
@@ -192,6 +192,23 @@ int main(int argc, char *argv[]) {
     std::cout << "(No filter) Number of close crosses: " << lNumberCloseCrossesNoFilter << std::endl;
     std::cout << "(No filter) Unique open crosses: " << lUniqueOpenCrossesNoFilter.size() << std::endl;
     std::cout << "(No filter) Unique close crosses: " << lUniqueCloseCrossesNoFilter.size() << std::endl;
+
+    //save a file named open_trades.txt containing all lUniqueOpenCrosses contained ticker names sorted in alphabetic order
+    std::ofstream lTradesFile;
+    lTradesFile.open ("open_trades.txt");
+    for (auto &rTickerFromList : lUniqueOpenCrosses) {
+        lTradesFile << rTickerFromList.first << std::endl;
+    }
+    lTradesFile.close();
+    std::cout << "Saved open_trades.txt" << std::endl;
+
+    //Same for close trades
+    lTradesFile.open ("close_trades.txt");
+    for (auto &rTickerFromList : lUniqueCloseCrosses) {
+        lTradesFile << rTickerFromList.first << std::endl;
+    }
+    lTradesFile.close();
+    std::cout << "Saved close_trades.txt" << std::endl;
 
     ro_mmap.unmap();
     return EXIT_SUCCESS;

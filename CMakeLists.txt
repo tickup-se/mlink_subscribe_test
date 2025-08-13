@@ -25,3 +25,5 @@ target_link_libraries(live_prints PUBLIC
 )
 
 add_executable(historic_prints historic_data.cpp)
+
+add_executable(file_compare file_compare.cpp)

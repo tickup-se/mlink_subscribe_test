@@ -64,18 +64,27 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Will stream " << lTickerList.size() << " tickers." << std::endl;
 
+    //convert the list lTickerList to a map with a bool value placeholder to sort the list alphabetically
+    std::map<std::string, bool> lTickerListMap;
+    for (const auto &rTickerName: lTickerList) {
+        lTickerListMap[rTickerName] = false;
+    }
+
     //Build subscription strings and send to backend
     std::string lCurrentSubscriptionString;
     uint64_t lSubscriptionCounter = 0;
+    uint64_t lUniqueTickerCounter = 0;
     std::vector<std::unique_ptr<MLinkStreamHandler>> lMLinkStreams;
-    for (const auto &rTickerName: lTickerList) {
-        auto lSubscriptionCandidate = "ticker.tk:eq:" + rTickerName;
+    for (const auto &rTickerName: lTickerListMap) {
+        auto lSubscriptionCandidate = "ticker.tk:eq:" + rTickerName.first;
+        lUniqueTickerCounter++;
         if (lCurrentSubscriptionString.size() + lSubscriptionCandidate.size() + 3 < 10000) {
             lCurrentSubscriptionString += lSubscriptionCandidate + " | ";
         } else {
             lCurrentSubscriptionString.erase(lCurrentSubscriptionString.size() - 3, 3);
             std::cout << "subscription string: " << lCurrentSubscriptionString << std::endl;
-            std::cout <<  "string length: " << lCurrentSubscriptionString.size() << std::endl;
+            std::cout << "string length: " << lCurrentSubscriptionString.size() << std::endl;
+            std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
 
             auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
             lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade);
@@ -83,13 +92,15 @@ int main(int argc, char *argv[]) {
 
             lSubscriptionCounter++;
             lCurrentSubscriptionString = lSubscriptionCandidate + " | ";
+            lUniqueTickerCounter = 0;
         }
     }
 
     if (lCurrentSubscriptionString.size() > 3) {
         lCurrentSubscriptionString.erase(lCurrentSubscriptionString.size() - 3, 3);
         std::cout << "last Subscription string: " << lCurrentSubscriptionString << std::endl;
-        std::cout <<  "string length: " << lCurrentSubscriptionString.size() << std::endl;
+        std::cout << "string length: " << lCurrentSubscriptionString.size() << std::endl;
+        std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
 
         auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
         lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade);
@@ -102,9 +113,12 @@ int main(int argc, char *argv[]) {
 
     //detach a thread printing the global debug counters
     std::thread ([&lMLinkStreams]() {
+        uint64_t lMinuteCounter = 0;
         while (true) {
             //sleep for 10 seconds
             std::this_thread::sleep_for(std::chrono::seconds(10));
+
+            lMinuteCounter++;
 
             uint64_t lNumberPrintMessages = 0;
             for (const auto &rMLinkStream: lMLinkStreams) {
@@ -118,6 +132,29 @@ int main(int argc, char *argv[]) {
                 << " unique close: " << gUniqueCloseCross.size()
                 << " no. print messages: " << lNumberPrintMessages
                 << std::endl;
+
+            //save a file named open_trades.txt containing all lUniqueOpenCrosses contained ticker names sorted in alphabetic order every minute (and the same for close)
+            if (lMinuteCounter == 6) {
+                lMinuteCounter = 0;
+                std::ofstream lTradesFile;
+                lTradesFile.open ("open_trades.txt");
+                {
+                    std::lock_guard lLock(gCrossTradeMtx);
+                    for (auto &rUniqueOpenCross : gUniqueOpenCross) {
+                        lTradesFile << rUniqueOpenCross.first << std::endl;
+                    }
+                }
+                lTradesFile.close();
+                //same for close trades
+                lTradesFile.open ("close_trades.txt");
+                {
+                    std::lock_guard lLock(gCrossTradeMtx);
+                    for (auto &rUniqueCloseCross : gUniqueCloseCross) {
+                        lTradesFile << rUniqueCloseCross.first << std::endl;
+                    }
+                }
+                lTradesFile.close();
+            }
         }
     }).detach();
 

@@ -42,6 +42,8 @@ Will every 10 seconds output debug information formated like this:
 (time: 15:02:04 [CEST]) open cross trades: 0 close cross trades: 0 unique open: 0 unique close: 0 no. print messages: 0
 ```
 
+Is saving a file every minute containing the current seen ticker names for open and close cross trades named: open_trades.txt and close_trades.txt at the location executing the program. The files can be used by the tool *file_compare* to compare the ticker names in the historic and live data.
+
 
 1. The local time and the local timezone where the code runs
 2. number of open cross trades seen from the subscribed universe
@@ -70,5 +72,16 @@ Unique per ticker name, should be the same as the above counters. If for example
 Number is the number of occasions open/close crosses messages.
 
 Unique per ticker name, should be the same as the above counters. If for example AAPL occurs twice or more, then the counter count one.
+
+
+The program outputs two files: open_trades.txt and close_trades.txt. The files can be used by the tool *file_compare* to compare the ticker names in the historic and live data.
+
+**Compare data**
+
+./file_compare <FILE_NAME_1> <FILE_NAME_2> 
+
+Compares the two files created by the live and historic parsers/streams and outputs the information about missing data.
+
+
 
 
