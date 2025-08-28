@@ -16,6 +16,8 @@ std::map<std::string, uint64_t> gUniqueCloseCross;
 
 std::mutex gCrossTradeMtx;
 
+std::map<std::string, bool> gTickerListMap;
+
 static std::string getCurrentTime() {
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
@@ -28,6 +30,9 @@ static std::string getCurrentTime() {
 
 void onCrossTrade(const std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo> &rCrossTrade) {
     std::lock_guard lLock(gCrossTradeMtx);
+    if (gTickerListMap.count(rCrossTrade->mTicker) == 0) {
+        return; //ticker not in the list
+    }
     if (rCrossTrade->mAucionType == spiderrock::protobuf::api::Observer::AuctionType::open) {
         gOpenCrossTrades++;
         gUniqueOpenCross[rCrossTrade->mTicker] += 1;
@@ -62,57 +67,20 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: No tickers found." << std::endl;
         return EXIT_FAILURE;
     }
-    std::cout << "Will stream " << lTickerList.size() << " tickers." << std::endl;
+    std::cout << "Will filter out " << lTickerList.size() << " tickers in the callback." << std::endl;
 
     //convert the list lTickerList to a map with a bool value placeholder to sort the list alphabetically
-    std::map<std::string, bool> lTickerListMap;
+
     for (const auto &rTickerName: lTickerList) {
-        lTickerListMap[rTickerName] = false;
+        gTickerListMap[rTickerName] = false;
     }
 
     //Build subscription strings and send to backend
-    std::string lCurrentSubscriptionString;
-    uint64_t lSubscriptionCounter = 0;
-    uint64_t lUniqueTickerCounter = 0;
-    std::vector<std::unique_ptr<MLinkStreamHandler>> lMLinkStreams;
-    for (const auto &rTickerName: lTickerListMap) {
-        auto lSubscriptionCandidate = "ticker.tk:eq:" + rTickerName.first;
-        lUniqueTickerCounter++;
-        if (lCurrentSubscriptionString.size() + lSubscriptionCandidate.size() + 3 < 10000) {
-            lCurrentSubscriptionString += lSubscriptionCandidate + " | ";
-        } else {
-            lCurrentSubscriptionString.erase(lCurrentSubscriptionString.size() - 3, 3);
-            std::cout << "subscription string: " << lCurrentSubscriptionString << std::endl;
-            std::cout << "string length: " << lCurrentSubscriptionString.size() << std::endl;
-            std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
-
-            auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
-            lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, false);
-            lMLinkStreams.push_back(std::move(lMLinkStream));
-
-            lSubscriptionCounter++;
-            lCurrentSubscriptionString = lSubscriptionCandidate + " | ";
-            lUniqueTickerCounter = 0;
-        }
-    }
-
-    if (lCurrentSubscriptionString.size() > 3) {
-        lCurrentSubscriptionString.erase(lCurrentSubscriptionString.size() - 3, 3);
-        std::cout << "last Subscription string: " << lCurrentSubscriptionString << std::endl;
-        std::cout << "string length: " << lCurrentSubscriptionString.size() << std::endl;
-        std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
-
-        auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
-        lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, false);
-        lMLinkStreams.push_back(std::move(lMLinkStream));
-
-        lSubscriptionCounter++;
-    }
-
-    std::cout << "used " << lSubscriptionCounter << " connections." << std::endl;
+    auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
+    lMLinkStream->startStream(lSpiderRockKey, "", onCrossTrade, true);
 
     //detach a thread printing the global debug counters
-    std::thread ([&lMLinkStreams]() {
+    std::thread ([&lMLinkStream]() {
         uint64_t lMinuteCounter = 0;
         while (true) {
             //sleep for 10 seconds
@@ -120,10 +88,7 @@ int main(int argc, char *argv[]) {
 
             lMinuteCounter++;
 
-            uint64_t lNumberPrintMessages = 0;
-            for (const auto &rMLinkStream: lMLinkStreams) {
-                lNumberPrintMessages += rMLinkStream->mObserver.mNumberPrintMessages;
-            }
+            uint64_t lNumberPrintMessages = lMLinkStream->mObserver.mNumberPrintMessages;
 
             std::cout << "(time: " << getCurrentTime()
                 << ") open cross trades: " << gOpenCrossTrades

@@ -79,6 +79,7 @@ int main(int argc, char *argv[]) {
     bool lCurrentRowIsNYSE = false;
     std::string lTickerName;
     std::string lTimestamp;
+    std::string lExchange;
 
     //Skip the first line (it's the column names)
     size_t lSkipLength = 0;
@@ -91,9 +92,14 @@ int main(int argc, char *argv[]) {
     mio::mmap_source::const_pointer pCellStart = pData + lSkipLength;
 
 
+    std::map<std::string, std::map<std::string, uint64_t>> lInstrumentsPerExchange;
+
     //Loop through each line in the CSV and extract the data from the relevant cells
     for (size_t i = lSkipLength; i < ro_mmap.size(); ++i) {
         if (pData[i] == '\r') {
+
+            lInstrumentsPerExchange[lExchange][lTickerName] += 1;
+
             lCurrentRowIsNYSE = false;
             pCellStart = pData + i + 1;
             lColumnIndex = 0;
@@ -112,7 +118,6 @@ int main(int argc, char *argv[]) {
                 lTickerName = std::string(pCellStart,(pData+i)-pCellStart);
             }
 
-
             //Get the timestamp
             if (lColumnIndex == 3) {
                 lTimestamp = std::string(pCellStart,(pData+i)-pCellStart);
@@ -120,6 +125,7 @@ int main(int argc, char *argv[]) {
 
             //Get the exchange
             if (lColumnIndex == 7) {
+                lExchange = std::string(pCellStart,(pData+i)-pCellStart);
                 if (*(const char*)pCellStart == 'N' &&
                     *(const char*)(pCellStart + 1) == 'Y' &&
                     *(const char*)(pCellStart + 2) == 'S' &&
@@ -209,6 +215,22 @@ int main(int argc, char *argv[]) {
     }
     lTradesFile.close();
     std::cout << "Saved close_trades.txt" << std::endl;
+
+
+    //printing all tickers per exchange
+    /*
+    std::ofstream lInstrumentsFile;
+    for (auto &rExchangeMap : lInstrumentsPerExchange) {
+        std::string lExchangesFilename = "exchange_" + rExchangeMap.first + ".txt";
+        lTradesFile.open (lExchangesFilename);
+        //std::cout << std::endl << "All tickers for exchange: " << rExchangeMap.first << std::endl << std::endl;
+        for (auto &rExchangeTicker : rExchangeMap.second) {
+            //std::cout << rExchangeTicker.first << " : " << rExchangeTicker.second << std::endl;
+            lTradesFile << rExchangeTicker.first << " : " << rExchangeTicker.second << std::endl;
+        }
+        lTradesFile.close();
+    }
+    */
 
     ro_mmap.unmap();
     return EXIT_SUCCESS;

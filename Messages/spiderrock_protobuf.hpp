@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <iostream>
+#include <iomanip>
 #include <google/protobuf/util/time_util.h>
 
 #include "spiderrock_protobuf_base.hpp"
@@ -556,6 +557,8 @@ class Observer {
 
     std::atomic<uint64_t> mHeartBeatCounter = 0;
 
+    bool mDumpPrints = false; //dumps all prints with a prefix "DUMP:"-->
+
     // Callback for SubscribeAck messages
     struct SubscribeData {
         std::string mSubscribeString;
@@ -582,6 +585,16 @@ class Observer {
     std::function<void(std::unique_ptr<CrossTradeInfo>)> mCrossTradeCallback = nullptr;
 
     uint64_t mNumberPrintMessages = 0;
+
+    static std::string getCurrentTime() {
+        auto lNow = std::chrono::system_clock::now();
+        uint64_t lNanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(lNow.time_since_epoch()).count() % 1000000000;
+        std::time_t lNowtime = std::chrono::system_clock::to_time_t(lNow);
+        std::tm* lLocalTime = std::localtime(&lNowtime);
+        std::stringstream ss;
+        ss << std::put_time(lLocalTime, "%H:%M:%S") << "." << std::setfill('0') << std::setw(9) << lNanoseconds << " [" << lLocalTime->tm_zone << "]";
+        return ss.str();
+    }
 
     int process_buffer(const char* buf, int len) {
         int processed = 0;
@@ -1454,8 +1467,10 @@ class Observer {
                 msgStockPrint.ParseFromArray(buf, len);
                 //std::cout << __LINE__  << std::endl; //Active
                 //std::cout << "Raw ---------- Start " << std::endl;
-                //std::ostream *o = &std::cout;
-                //*o << msgStockPrint;
+                if (mDumpPrints) {
+                    std::ostream *o = &std::cout;
+                    *o << "DUMP: (" << getCurrentTime() << ") " << msgStockPrint << std::endl;
+                }
                 //std::cout << std::endl << "Raw ---------- End " << std::endl;
 
 

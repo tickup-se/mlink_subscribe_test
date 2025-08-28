@@ -52,6 +52,14 @@ Is saving a file every minute containing the current seen ticker names for open 
 5. unique close is the number of unique close cross trades mening if AAPL would receive two close cross unique close would count that as one (close cross trades should be the same as this parameter)
 6. no. print messages the number of all StockPrint messages without any filter decoded
 
+./live_prints_no_filter <API_KEY>
+
+Same as above but is subscribing to the full universe and filters out the instruments in the callback. 
+
+./live_prints_dump <API_KEY>
+
+Same as above but is dumping all messages to stdout.
+
 **Historic data**
 
 ./historic_prints <FILE_NAME> 

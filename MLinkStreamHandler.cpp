@@ -6,7 +6,9 @@
 
 int MLinkStreamHandler::startStream(const std::string& rSpiderRockKey,
     const std::string& rClause,
-    const std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)>& rCrossTradeCallback) {
+    const std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)>& rCrossTradeCallback,
+    const bool aDumpPrintMessage
+    ) {
 
     //Start of Spiderrocks example code from their Github-repo
     //Got no clue about the first 'rest session' part. it's original fails added port 443 then at least the code continues
@@ -78,6 +80,7 @@ int MLinkStreamHandler::startStream(const std::string& rSpiderRockKey,
 
     //get all open and close crosses in the above function: onCrossTrade
     mObserver.mCrossTradeCallback = rCrossTradeCallback;
+    mObserver.mDumpPrints = aDumpPrintMessage;
 
     //Set up the stream basics
     int activeLatency = 1;
@@ -87,7 +90,9 @@ int MLinkStreamHandler::startStream(const std::string& rSpiderRockKey,
     mlinkStream.set_active_latency(activeLatency);
     mlinkStream.set_msg_name(messageType);
     mlinkStream.set_query_label(queryString);
-    mlinkStream.set_where_clause(rClause);
+    if (!rClause.empty()) {
+        mlinkStream.set_where_clause(rClause);
+    }
     mSubscriptionManager->stream(mlinkStream);
 
     uint64_t lTimeout = 5000; //5 seconds timeout

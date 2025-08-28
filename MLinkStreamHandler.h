@@ -13,7 +13,9 @@ class MLinkStreamHandler {
 public:
     int startStream(const std::string& rSpiderRockKey,
         const std::string& rClause,
-        const std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)>& rCrossTradeCallback);
+        const std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)>& rCrossTradeCallback,
+        bool aDumpPrintMessage
+        );
     //int stopStream();
 
     //std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)> mCrossTradeCallback = nullptr;

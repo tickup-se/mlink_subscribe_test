@@ -24,6 +24,22 @@ target_link_libraries(live_prints PUBLIC
         Threads::Threads
 )
 
+add_executable(live_prints_no_filter MLinkStreamHandler.cpp live_data_no_filter.cpp)
+target_link_libraries(live_prints_no_filter PUBLIC
+        ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${PROTO_BASE}
+        Threads::Threads
+)
+
+add_executable(live_prints_dump MLinkStreamHandler.cpp live_data_dump_prints.cpp)
+target_link_libraries(live_prints_dump PUBLIC
+        ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${PROTO_BASE}
+        Threads::Threads
+)
+
 add_executable(historic_prints historic_data.cpp)
 
 add_executable(file_compare file_compare.cpp)
