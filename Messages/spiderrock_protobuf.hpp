@@ -1419,7 +1419,50 @@ class Observer {
             case 3060: {  // StockPrintSet
 			    msgStockPrintSet.Clear();
                 msgStockPrintSet.ParseFromArray(buf, len);
-                std::cout << __LINE__  << std::endl;
+
+                if (mDumpPrints) {
+                    std::ostream *o = &std::cout;
+                    *o << "DUMP_SET: (" << getCurrentTime() << ") " << msgStockPrintSet << std::endl;
+                }
+                //std::cout << std::endl << "Raw ---------- End " << std::endl;
+
+
+                mNumberPrintMessages++;
+
+                //Continue only if the message is for NYSE
+                spiderrock::protobuf::api::StkExch lExchange = msgStockPrintSet.get_prt_exch();
+                if (lExchange != spiderrock::protobuf::api::StkExch::STKEXCH_NYSE) {
+                    break; // Skip non-NYSE exchanges
+                }
+
+                //Continue only if the message is open or close
+                uint32_t lPrintCondition = msgStockPrintSet.get_prt_cond2();
+                lPrintCondition = lPrintCondition & 0xff;
+                if (lPrintCondition != 79 && //open
+                    lPrintCondition != 54) { //close
+                    break; // Skip non-open/close prints
+                    }
+
+                auto lData = std::make_unique<CrossTradeInfo>();
+
+                const TickerKey lSpiderRockTicker = msgStockPrintSet.get_pkey().get_ticker();
+                lData->mTicker = lSpiderRockTicker.get_ticker();
+
+                if (lPrintCondition == 79) { //open
+                    lData->mAucionType = AuctionType::open;
+                } else if (lPrintCondition == 54) { //close
+                    lData->mAucionType = AuctionType::close;
+                } else {
+                    lData->mAucionType = AuctionType::unknown;
+                }
+                lData->mTimeStamp = std::chrono::duration_cast<std::chrono::nanoseconds>(msgStockPrintSet.get_timestamp().time_since_epoch()).count();
+
+                if (mCrossTradeCallback) {
+                    mCrossTradeCallback(std::move(lData));
+                } else {
+                    throw std::runtime_error("CrossTrade callback not defined");
+                }
+
                 break;
             }
             case 3255: {  // TickerAnalytics

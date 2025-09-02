@@ -42,13 +42,31 @@ void onCrossTrade(const std::unique_ptr<spiderrock::protobuf::api::Observer::Cro
 int main(int argc, char *argv[]) {
 
     //Get the program arguments
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <SpiderRock key>" << std::endl;
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <type> <dump prints> <SpiderRock key>" << std::endl;
+        std::cerr << "Type: 1 = StockPrint, 2 = StockPrintSet" << std::endl;
+        std::cerr << "Dump prints: 0 = do not dump prints, 1 = dump prints" << std::endl;
         return EXIT_FAILURE;
     }
 
+    std::string lType = argv[1];
+    if (lType != "1" && lType != "2") {
+        std::cerr << "Error: Type must be 1 or 2." << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    auto lStreamType = (MLinkStreamHandler::StreamType)std::stoi(lType);
+
+    std::string lDumpPrints = argv[2];
+    if (lDumpPrints != "0" && lDumpPrints != "1") {
+        std::cerr << "Error: Dump prints must be 0 or 1." << std::endl;
+        return EXIT_FAILURE;
+    }
+    bool lDumpPrintsBool = (std::stoi(lDumpPrints) == 1);
+
+
     //API Key
-    std::string lSpiderRockKey = argv[1];
+    std::string lSpiderRockKey = argv[3];
     if (lSpiderRockKey.length() < 5) {
         std::cerr << "Error: SpiderRock key is not set or too short." << std::endl;
         return EXIT_FAILURE;
@@ -87,7 +105,7 @@ int main(int argc, char *argv[]) {
             std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
 
             auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
-            lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, false);
+            lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, lDumpPrintsBool, lStreamType);
             lMLinkStreams.push_back(std::move(lMLinkStream));
 
             lSubscriptionCounter++;
@@ -103,7 +121,7 @@ int main(int argc, char *argv[]) {
         std::cout << "no. tickers: " << lUniqueTickerCounter << std::endl;
 
         auto lMLinkStream = std::make_unique<MLinkStreamHandler>();
-        lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, false);
+        lMLinkStream->startStream(lSpiderRockKey, lCurrentSubscriptionString, onCrossTrade, lDumpPrintsBool, lStreamType);
         lMLinkStreams.push_back(std::move(lMLinkStream));
 
         lSubscriptionCounter++;

@@ -34,7 +34,11 @@ cmake --build . --parallel $(nproc)
 
 **Live data**
 
-./live_prints <API_KEY> 
+./live_prints <TYPE> <DUMP> <API_KEY> 
+
+TYPE: 1 = StockPrint, 2 = StockPrintSet
+DUMP: 0 = do not dump prints, 1 = dump prints to stdout
+API_KEY: SpiderRock key
 
 Will every 10 seconds output debug information formated like this:
 
@@ -54,11 +58,8 @@ Is saving a file every minute containing the current seen ticker names for open 
 
 ./live_prints_no_filter <API_KEY>
 
-Same as above but is subscribing to the full universe and filters out the instruments in the callback. 
-
-./live_prints_dump <API_KEY>
-
-Same as above but is dumping all messages to stdout.
+Same as above but is subscribing to the full universe and filters out the instruments in the callback.
+(is only capable of StockPrint and not dumping all to stdout)
 
 **Historic data**
 

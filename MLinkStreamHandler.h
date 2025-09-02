@@ -11,10 +11,18 @@ class MLinkStreamHandler {
     std::unique_ptr<spiderrock::mlink::SubscriptionManager<>> mSubscriptionManager;
     std::unique_ptr<spiderrock::mlink::MLinkSession> mWebSocketSession;
 public:
+
+    enum class StreamType: uint8_t {
+        Unknown = 0,
+        StockPrint = 1,
+        StockPrintSet = 2,
+    };
+
     int startStream(const std::string& rSpiderRockKey,
         const std::string& rClause,
         const std::function<void(std::unique_ptr<spiderrock::protobuf::api::Observer::CrossTradeInfo>)>& rCrossTradeCallback,
-        bool aDumpPrintMessage
+        bool aDumpPrintMessage,
+        StreamType aStreamType = StreamType::Unknown
         );
     //int stopStream();
 
